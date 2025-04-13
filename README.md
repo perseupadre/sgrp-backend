@@ -2,7 +2,7 @@
 
 ## Descrição
 
-API desenvolvida em Python/Flask para avaliação de riscos psicossociais em ambientes de trabalho. O sistema implementa um questionário baseado no PRD-PRQ (Raising Psychosocial Risks - Quick Questionnaire), oferecendo uma estrutura hierárquica de macrotemas, temas e subtemas para identificação detalhada de áreas problemáticas.
+API desenvolvida em Python/Flask para avaliação de riscos psicossociais em ambientes de trabalho. O sistema implementa um questionário baseado no PRD-PRQ (Participative, Rapid and Detailed Psychosocial Risk Questionnaire), oferecendo uma estrutura hierárquica de macrotemas, temas e subtemas para identificação detalhada de áreas problemáticas.
 
 A API gerencia a coleta de respostas em dois níveis, processa os dados e gera relatórios estatísticos com recomendações específicas baseadas no nível de risco identificado.
 
