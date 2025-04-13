@@ -1,0 +1,589 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de Riscos Psicossociais",
+  "description": "**Bem-vindo(a) ao Sistema de Avaliação de Riscos Psicossociais!** 🧠💼\n\nEsta ferramenta permite que organizações identifiquem fatores que afetam a saúde mental e o bem-estar no ambiente de trabalho, gerando insights valiosos e recomendações práticas para melhorias.\n\n### 🌟 Principais recursos:\n- Baseado no Participative, Rapid and Detailed Psychosocial Risk Questionnaire (PRD–PRQ) de Bolis et. al (2024)\n- Questionário intuitivo em dois níveis para maior eficiência\n- Organização hierárquica em macrotemas, temas e subtemas\n- Relatórios estatísticos detalhados com visualizações\n- Recomendações personalizadas com base na classificação de risco\n- Filtragem por empresa e departamento para análises específicas\n\nMVP desenvolvido para atendimento das demandas da Sprint: Desenvolvimento Full Stack Básico da Especialização em Engenharia de Software da PUC-RIO.",
+    "version": "1.0.0",
+    "contact": {
+      "name": ": perseupadre@gmail.com",
+      "email": "perseupadre@gmail.com"
+    },
+    "license": {
+      "name": "PUC-Rio - Engenharia de Software - Projeto MVP",
+      "url": "https://www.puc-rio.br"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Servidor local para desenvolvimento e teste"
+    }
+  ],
+  "tags": [
+    {
+      "name": "questionário",
+      "description": "📋 Explore a estrutura e os conteúdos do questionário de avaliação"
+    },
+    {
+      "name": "avaliação",
+      "description": "✅ Registre e gerencie avaliações de riscos psicossociais"
+    },
+    {
+      "name": "relatório",
+      "description": "📊 Gere análises estatísticas, visualizações e recomendações"
+    },
+    {
+      "name": "administração",
+      "description": "⚙️ Ferramentas para configuração e manutenção do sistema"
+    }
+  ],
+  "paths": {
+    "/obter_questionario": {
+      "get": {
+        "tags": ["questionário"],
+        "summary": "Obtenha o questionário completo organizado hierarquicamente",
+        "description": "Retorna a estrutura completa do questionário, organizando todos os elementos em uma hierarquia de **5 macrotemas** (categorias A-E), **20 temas** numerados (questões principais) e seus respectivos **subtemas** (aspectos específicos de cada tema).\n\nIdeal para construir a interface de avaliação e exibir as perguntas ao usuário de forma organizada.",
+        "operationId": "obterQuestionario",
+        "responses": {
+          "200": {
+            "description": "✓ Questionário obtido com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionarioHierarquico"
+                },
+                "example": {
+                  "questionario": [
+                    {
+                      "id": 1,
+                      "codigo": "A",
+                      "titulo": "Sobre diferentes cargas de trabalho",
+                      "temas": [
+                        {
+                          "id": 1,
+                          "numero": 1,
+                          "descricao": "Meu trabalho é caracterizado por alta intensidade e um ritmo acelerado de trabalho.",
+                          "subtemas": [
+                            {
+                              "id": 1,
+                              "letra": "a",
+                              "descricao": "Preciso trabalhar muito rápido ou com muito esforço ao longo do dia"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "❌ Erro ao processar a solicitação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cadastrar_avaliacao": {
+      "post": {
+        "tags": ["avaliação"],
+        "summary": "Registre uma nova avaliação completa",
+        "description": "Envie uma avaliação de riscos psicossociais com dados de identificação e respostas do questionário nos dois níveis:\n\n1️⃣ **Primeiro nível**: Seleção de temas relevantes para o contexto avaliado (Sim/Não)\n\n2️⃣ **Segundo nível**: Para cada tema selecionado, avaliação do grau de desconforto (0-5) para os subtemas relacionados\n\nO sistema inclui proteção contra submissões duplicadas recentes.",
+        "operationId": "cadastrarAvaliacao",
+        "requestBody": {
+          "description": "Dados completos da avaliação",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovaAvaliacao"
+              },
+              "example": {
+                "empresa": "PUC-Rio",
+                "departamento": "Engenharias",
+                "funcao": "Professor",
+                "respostas_nivel1": [
+                  {"tema_id": 1, "selecionado": true},
+                  {"tema_id": 4, "selecionado": true},
+                  {"tema_id": 8, "selecionado": true}
+                ],
+                "respostas_nivel2": [
+                  {"subtema_id": 1, "nivel_desconforto": 3},
+                  {"subtema_id": 2, "nivel_desconforto": 4},
+                  {"subtema_id": 12, "nivel_desconforto": 2}
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "✓ Avaliação registrada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaAvaliacao"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "❌ Dados de avaliação inválidos ou incompletos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "❌ Erro ao processar a solicitação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gerar_relatorio": {
+      "get": {
+        "tags": ["relatório"],
+        "summary": "Gere relatórios estatísticos detalhados com recomendações",
+        "description": "Cria um relatório completo com análise estatística das avaliações, incluindo:\n\n📊 **Dados estatísticos**:\n- Percentual de ocorrência de cada tema\n- Nível médio de desconforto por tema e subtema\n- Rankings de temas mais relevantes\n\n💡 **Recomendações personalizadas** baseadas na classificação de risco (0-4):\n- Risco Ausente (0): <0.5\n- Risco Baixo (1): 0.5-1.5\n- Risco Moderado (2): 1.5-2.5\n- Risco Alto (3): 2.5-3.5\n- Risco Crítico (4): >3.5\n\nPermite filtrar por empresa e/ou departamento para análises específicas.",
+        "operationId": "gerarRelatorio",
+        "parameters": [
+          {
+            "name": "empresa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nome da empresa para filtrar resultados (opcional)"
+          },
+          {
+            "name": "departamento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Departamento específico para filtrar resultados (opcional)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "✓ Relatório gerado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RelatorioEstatistico"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "⚠️ Nenhuma avaliação encontrada com os filtros informados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "❌ Erro ao processar a solicitação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inicializar_db": {
+      "post": {
+        "tags": ["administração"],
+        "summary": "Configure o banco de dados com os dados iniciais",
+        "description": "Inicializa o sistema criando e populando o banco de dados com todos os dados necessários:\n\n🏗️ **Estruturas criadas**:\n- 5 Macrotemas principais (A-E)\n- 20 Temas numerados\n- Todos os subtemas correspondentes\n- Recomendações para cada tema e nível de risco (0-4)\n\n⚠️ **Importante**: Esta operação é segura de executar múltiplas vezes, pois verifica se o banco já está populado antes de fazer alterações.",
+        "operationId": "inicializarDb",
+        "responses": {
+          "200": {
+            "description": "✓ Banco de dados configurado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Banco de dados inicializado com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "❌ Erro ao processar a solicitação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/limpar_avaliacoes_duplicadas": {
+      "delete": {
+        "tags": ["administração"],
+        "summary": "Remova avaliações duplicadas do sistema",
+        "description": "Identifica e remove avaliações duplicadas para a mesma empresa e departamento, mantendo apenas a avaliação mais recente para cada combinação. Útil para limpeza de dados e correção de problemas de submissão múltipla.",
+        "operationId": "limparAvaliacoesDuplicadas",
+        "responses": {
+          "200": {
+            "description": "✓ Avaliações duplicadas removidas com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "5 avaliações duplicadas foram removidas."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "❌ Erro ao processar a solicitação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erro"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "QuestionarioHierarquico": {
+        "type": "object",
+        "required": ["questionario"],
+        "properties": {
+          "questionario": {
+            "type": "array",
+            "description": "Lista dos 5 macrotemas com seus temas e subtemas",
+            "items": {
+              "$ref": "#/components/schemas/MacroTema"
+            }
+          }
+        }
+      },
+      "MacroTema": {
+        "type": "object",
+        "required": ["id", "codigo", "titulo", "temas"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único do macrotema no banco de dados"
+          },
+          "codigo": {
+            "type": "string",
+            "description": "Letra que identifica o macrotema (A a E)",
+            "example": "A"
+          },
+          "titulo": {
+            "type": "string",
+            "description": "Título descritivo do macrotema",
+            "example": "Sobre diferentes cargas de trabalho"
+          },
+          "temas": {
+            "type": "array",
+            "description": "Lista de temas neste macrotema",
+            "items": {
+              "$ref": "#/components/schemas/Tema"
+            }
+          }
+        }
+      },
+      "Tema": {
+        "type": "object",
+        "required": ["id", "numero", "descricao", "subtemas"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único do tema no banco de dados"
+          },
+          "numero": {
+            "type": "integer",
+            "description": "Número sequencial do tema (1-20)",
+            "example": 1
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descrição completa do tema",
+            "example": "Meu trabalho é caracterizado por alta intensidade e um ritmo acelerado de trabalho."
+          },
+          "subtemas": {
+            "type": "array",
+            "description": "Lista de subtemas deste tema",
+            "items": {
+              "$ref": "#/components/schemas/Subtema"
+            }
+          }
+        }
+      },
+      "Subtema": {
+        "type": "object",
+        "required": ["id", "letra", "descricao"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único do subtema no banco de dados"
+          },
+          "letra": {
+            "type": "string",
+            "description": "Letra que identifica o subtema dentro do tema",
+            "example": "a"
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Texto completo da pergunta do subtema",
+            "example": "Preciso trabalhar muito rápido ou com muito esforço ao longo do dia"
+          }
+        }
+      },
+      "NovaAvaliacao": {
+        "type": "object",
+        "required": ["empresa", "departamento", "respostas_nivel1", "respostas_nivel2"],
+        "properties": {
+          "empresa": {
+            "type": "string",
+            "description": "Nome da empresa sendo avaliada",
+            "example": "PUC-Rio"
+          },
+          "departamento": {
+            "type": "string",
+            "description": "Departamento ou setor específico",
+            "example": "Engenharias"
+          },
+          "funcao": {
+            "type": "string",
+            "description": "Função ou cargo do respondente (opcional)",
+            "example": "Professor"
+          },
+          "respostas_nivel1": {
+            "type": "array",
+            "description": "Respostas do primeiro nível (seleção dos temas relevantes)",
+            "items": {
+              "$ref": "#/components/schemas/RespostaNivel1"
+            }
+          },
+          "respostas_nivel2": {
+            "type": "array",
+            "description": "Respostas do segundo nível (grau de desconforto para subtemas)",
+            "items": {
+              "$ref": "#/components/schemas/RespostaNivel2"
+            }
+          }
+        }
+      },
+      "RespostaNivel1": {
+        "type": "object",
+        "required": ["tema_id", "selecionado"],
+        "properties": {
+          "tema_id": {
+            "type": "integer",
+            "description": "ID do tema sendo respondido",
+            "example": 1
+          },
+          "selecionado": {
+            "type": "boolean",
+            "description": "Se o tema foi marcado como relevante (verdadeiro) ou não (falso)",
+            "example": true
+          }
+        }
+      },
+      "RespostaNivel2": {
+        "type": "object",
+        "required": ["subtema_id", "nivel_desconforto"],
+        "properties": {
+          "subtema_id": {
+            "type": "integer",
+            "description": "ID do subtema sendo avaliado",
+            "example": 1
+          },
+          "nivel_desconforto": {
+            "type": "integer",
+            "description": "Nível de desconforto (0=nenhum, 5=extremo)",
+            "minimum": 0,
+            "maximum": 5,
+            "example": 3
+          }
+        }
+      },
+      "RespostaAvaliacao": {
+        "type": "object",
+        "required": ["mensagem", "id"],
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "description": "Mensagem de confirmação",
+            "example": "Avaliação cadastrada com sucesso"
+          },
+          "id": {
+            "type": "integer",
+            "description": "ID da avaliação criada",
+            "example": 42
+          }
+        }
+      },
+      "RelatorioEstatistico": {
+        "type": "object",
+        "required": ["total_avaliacoes", "empresa", "departamento", "temas"],
+        "properties": {
+          "total_avaliacoes": {
+            "type": "integer",
+            "description": "Número de avaliações incluídas na análise",
+            "example": 25
+          },
+          "empresa": {
+            "type": "string",
+            "description": "Empresa analisada ou 'Todas'",
+            "example": "PUC-Rio"
+          },
+          "departamento": {
+            "type": "string",
+            "description": "Departamento analisado ou 'Todos'",
+            "example": "Engenharias"
+          },
+          "temas": {
+            "type": "array",
+            "description": "Lista de temas com suas estatísticas detalhadas",
+            "items": {
+              "$ref": "#/components/schemas/TemasEstatistica"
+            }
+          }
+        }
+      },
+      "TemasEstatistica": {
+        "type": "object",
+        "required": ["tema", "descricao", "contagem", "percentual", "nivel_medio", "macrotema", "subtemas", "recomendacoes"],
+        "properties": {
+          "tema": {
+            "type": "integer",
+            "description": "Número identificador do tema (1-20)",
+            "example": 1
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descrição completa do tema",
+            "example": "Meu trabalho é caracterizado por alta intensidade e um ritmo acelerado de trabalho."
+          },
+          "contagem": {
+            "type": "integer",
+            "description": "Quantidade de avaliações que selecionaram este tema",
+            "example": 18
+          },
+          "percentual": {
+            "type": "number",
+            "format": "float",
+            "description": "Porcentagem de ocorrência nas avaliações (0-100)",
+            "example": 72.0
+          },
+          "macrotema": {
+            "type": "string",
+            "description": "Código do macrotema (A-E) a que pertence",
+            "example": "A"
+          },
+          "nivel_medio": {
+            "type": "number",
+            "format": "float",
+            "description": "Média do nível de desconforto para este tema",
+            "example": 3.5
+          },
+          "subtemas": {
+            "type": "array",
+            "description": "Estatísticas detalhadas para cada subtema",
+            "items": {
+              "$ref": "#/components/schemas/SubtemaEstatistica"
+            }
+          },
+          "recomendacoes": {
+            "type": "array",
+            "description": "Lista de recomendações conforme o nível de risco",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Redistribuir urgentemente a carga de trabalho, limitar horas extras e implementar apoio adicional para equipes sobrecarregadas."
+            ]
+          }
+        }
+      },
+      "SubtemaEstatistica": {
+        "type": "object",
+        "required": ["letra", "descricao", "nivel_medio"],
+        "properties": {
+          "letra": {
+            "type": "string",
+            "description": "Letra identificadora do subtema",
+            "example": "a"
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Texto completo do subtema",
+            "example": "Preciso trabalhar muito rápido ou com muito esforço ao longo do dia"
+          },
+          "nivel_medio": {
+            "type": "number",
+            "format": "float",
+            "description": "Média do nível de desconforto para este subtema",
+            "example": 3.8
+          }
+        }
+      },
+      "Erro": {
+        "type": "object",
+        "properties": {
+          "erro": {
+            "type": "string",
+            "description": "Descrição do erro ocorrido",
+            "example": "Dados de entrada inválidos ou incompletos"
+          },
+          "detalhes": {
+            "type": "string",
+            "description": "Informações adicionais sobre o erro (quando disponíveis)",
+            "example": "O campo 'empresa' é obrigatório"
+          }
+        }
+      }
+    }
+  }
+}
